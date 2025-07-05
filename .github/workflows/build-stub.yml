@@ -1,1 +1,38 @@
+name: Build Android Stub
 
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_SDK_ROOT: ${{ runner.tool_cache }}/android-sdk
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 11
+
+    - name: Install Android SDK
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y wget unzip
+        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmd.zip
+        unzip cmd.zip -d cmd
+        yes | cmd/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
+    - name: Build APK
+      run: |
+        chmod +x gradlew
+        ./gradlew assembleRelease
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: stub-apk
+        path: app/build/outputs/apk/release/app-release.apk
