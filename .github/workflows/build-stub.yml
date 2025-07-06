@@ -23,11 +23,9 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y wget unzip
-
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmd.zip
           mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
           unzip cmd.zip -d $ANDROID_SDK_ROOT/cmdline-tools
-
           yes | $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools/bin/sdkmanager \
             --sdk_root=$ANDROID_SDK_ROOT \
             "platform-tools" \
@@ -39,8 +37,9 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y gradle
 
-      - name: Build Release APK
-        run: gradle assembleRelease
+      - name: Build Release APK (com debug)
+        run: |
+          gradle assembleRelease --stacktrace --info
 
       - name: Upload stub APK artifact
         uses: actions/upload-artifact@v4
