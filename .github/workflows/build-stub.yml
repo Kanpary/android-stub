@@ -1,4 +1,4 @@
-name: Build Android Stub (Debug)
+name: Build Android Stub (Debug + Logs)
 
 on:
   workflow_dispatch:
@@ -19,13 +19,16 @@ jobs:
           distribution: temurin
           java-version: 11
 
-      - name: Install Android SDK Command-line Tools
+      - name: Install Android SDK Command‐line Tools
         run: |
           sudo apt-get update -y
           sudo apt-get install -y wget unzip
+
+          # instala SDK
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmd.zip
           mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
           unzip cmd.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+
           yes | $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools/bin/sdkmanager \
             --sdk_root=$ANDROID_SDK_ROOT \
             "platform-tools" \
@@ -37,10 +40,25 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y gradle
 
-      - name: Build Debug APK
-        run: gradle assembleDebug --stacktrace --info
+      - name: Show file tree & versions
+        run: |
+          echo "== Project structure =="
+          find . -maxdepth 3 -type f | sed 's/^/  /'
+          echo "== Java version ==" && java -version
+          echo "== Gradle version ==" && gradle -v
 
-      - name: Upload stub APK artifact
+      - name: Build Debug APK (logging to file)
+        run: |
+          gradle assembleDebug --stacktrace --info > build-logs.txt 2>&1 || true
+
+      - name: Upload build logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: build-logs.txt
+
+      - name: Upload stub APK-debug
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: stub-apk-debug
