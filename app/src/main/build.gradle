@@ -1,1 +1,27 @@
+apply plugin: 'com.android.application'
 
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        applicationId "com.example.stub"
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+            debuggable false
+        }
+    }
+}
+
+dependencies {
+    // não há dependências extras por enquanto
+}
